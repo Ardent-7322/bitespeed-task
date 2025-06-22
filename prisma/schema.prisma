@@ -1,0 +1,29 @@
+generator client {
+  provider = "prisma-client-js" // ❗ Typo fixed: 'cleint' → 'client'
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Contact {
+  id              Int              @id @default(autoincrement())
+  phoneNumber     String?          @db.VarChar(20) // 
+  linkedID        Int?                                     // Will point to primary contact
+  linkPrecedence  LinkPrecedence   @default(PRIMARY)
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  deletedAt       DateTime?
+
+  // A contact can also have many others linked to it
+  linkedFrom      Contact[]        @relation("LinkedContacts", fields: [], references: []) 
+
+  // Add the reverse relation
+  linkedTo        Contact?         @relation("LinkedContacts", fields: [linkedID], references: [id])
+}
+
+enum LinkPrecedence {
+  PRIMARY
+  SECONDARY
+}
